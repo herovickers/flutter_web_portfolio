@@ -27,7 +27,6 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
 
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -46,6 +45,8 @@ flutter:
   assets:
     - assets/images/photo_grey_compressed.jpg
     - assets/images/photo_grey.png
+    - assets/images/tag_battle.png
+    - assets/images/world_holidays.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

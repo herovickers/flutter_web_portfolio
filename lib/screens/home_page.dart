@@ -15,11 +15,15 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
+enum BodyWidget { about, work }
+
 class _MyHomePageState extends State<MyHomePage> {
   AutoScrollController controller;
   int counter = 2;
   double chevronOpacity = 0.0;
   bool _showOverlayMenu = false;
+  bool _isFooterCentered = false;
+  BodyWidget _currentBodyWidget = BodyWidget.about;
 
   @override
   void initState() {
@@ -30,7 +34,7 @@ class _MyHomePageState extends State<MyHomePage> {
         axis: Axis.vertical);
   }
 
-  Future _scrollToFooter(Key key) async {
+  Future _scrollToFooter() async {
     if (_showOverlayMenu == true) {
       setState(() {
         _showOverlayMenu = false;
@@ -59,6 +63,36 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _showOverlayMenu = !_showOverlayMenu;
     });
+  }
+
+  _showAbout() {
+    setState(() {
+      _switchBodyToAbout();
+      _unCenterFooter();
+    });
+  }
+
+  _switchBodyToAbout() {
+    _currentBodyWidget = BodyWidget.about;
+  }
+
+  _unCenterFooter() {
+    _isFooterCentered = false;
+  }
+
+  _showWork() {
+    setState(() {
+      _switchBodyToWork();
+      _centerFooter();
+    });
+  }
+
+  _switchBodyToWork() {
+    _currentBodyWidget = BodyWidget.work;
+  }
+
+  _centerFooter() {
+    _isFooterCentered = true;
   }
 
   @override
@@ -102,8 +136,11 @@ class _MyHomePageState extends State<MyHomePage> {
                               height: AppDimens.SCREEN_PADDING_TOP,
                             ),
                             Header(
-                                onContactTap: _scrollToFooter,
-                                onMenuTap: _toggleShowOverlayMenu),
+                              onContactTap: _scrollToFooter,
+                              onWorkTap: _showWork,
+                              onMenuTap: _toggleShowOverlayMenu,
+                              onAboutTap: _showAbout,
+                            ),
                             SizedBox(height: 36.0),
                             AnimatedOpacity(
                                 opacity: _showOverlayMenu ? 0.0 : 1.0,
@@ -111,10 +148,16 @@ class _MyHomePageState extends State<MyHomePage> {
                                 child: !_showOverlayMenu
                                     ? Column(
                                         children: <Widget>[
-                                          Body(),
+                                          Body(
+                                              currentBodyWidget:
+                                                  _currentBodyWidget),
                                           SizedBox(height: 36.0),
                                           _wrapScrollTag(
-                                              index: counter, child: Footer()),
+                                              index: counter,
+                                              child: Footer(
+                                                isFooterCentered:
+                                                    _isFooterCentered,
+                                              )),
                                           SizedBox(
                                             height:
                                                 AppDimens.SCREEN_PADDING_BOTTOM,
@@ -174,44 +217,51 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class Footer extends StatelessWidget {
-  Footer({
-    Key key,
-  }) : super(key: key);
+  final bool isFooterCentered;
+
+  Footer({Key key, this.isFooterCentered = true}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        FractionallySizedBox(
-          widthFactor:
-              AppFunctions.getScreenSize(context) == AppScreenSize.small
-                  ? 1
-                  : 2 / 5,
-          child: FooterMessage(),
-        ),
-        SizedBox(
-          height: 24.0,
-        ),
-        EmailButton(),
-        SizedBox(
-          height: 18.0,
-        ),
-        Socials(),
-      ],
+    return Container(
+      child: Column(
+        crossAxisAlignment: isFooterCentered
+            ? CrossAxisAlignment.center
+            : CrossAxisAlignment.start,
+        children: <Widget>[
+          FractionallySizedBox(
+            widthFactor:
+                AppFunctions.getScreenSize(context) == AppScreenSize.small
+                    ? 1
+                    : isFooterCentered ? 1 : 2 / 5,
+            child: FooterMessage(isFooterCentered: isFooterCentered),
+          ),
+          SizedBox(
+            height: 24.0,
+          ),
+          EmailButton(),
+          SizedBox(
+            height: 18.0,
+          ),
+          Socials(
+            isFooterCentered: isFooterCentered,
+          ),
+        ],
+      ),
     );
   }
 }
 
 class FooterMessage extends StatelessWidget {
-  const FooterMessage({
-    Key key,
-  }) : super(key: key);
+  final bool isFooterCentered;
+  const FooterMessage({Key key, @required this.isFooterCentered})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Text(
       AppStrings.FOOTER_MESSAGE,
+      textAlign: isFooterCentered ? TextAlign.center : null,
       style: TextStyle(
           color: Colors.white,
           fontSize: 28.0,
@@ -267,23 +317,40 @@ class _EmailButtonState extends State<EmailButton> {
 }
 
 class Socials extends StatelessWidget {
-  const Socials({
-    Key key,
-  }) : super(key: key);
+  final bool isFooterCentered;
+  const Socials({Key key, @required this.isFooterCentered}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Row(children: <Widget>[
-      buildSocialIconButton(MaterialCommunityIcons.github_circle,
-          url: AppStrings.GITHUB_URL),
-      buildSocialIconButton(MaterialCommunityIcons.stack_overflow,
-          url: AppStrings.STACKOVERFLOW_URL),
-      buildSocialIconButton(MaterialCommunityIcons.twitter,
-          url: AppStrings.TWITTER_URL),
-    ]);
+    return Row(
+      mainAxisAlignment:
+          isFooterCentered ? MainAxisAlignment.center : MainAxisAlignment.start,
+      children: <Widget>[
+        SocialIconButton(
+            icon: MaterialCommunityIcons.github_circle,
+            url: AppStrings.GITHUB_URL),
+        SocialIconButton(
+            icon: MaterialCommunityIcons.stack_overflow,
+            url: AppStrings.STACKOVERFLOW_URL),
+        SocialIconButton(
+            icon: MaterialCommunityIcons.twitter, url: AppStrings.TWITTER_URL),
+      ],
+    );
   }
+}
 
-  Widget buildSocialIconButton(IconData icon, {@required url}) {
+class SocialIconButton extends StatelessWidget {
+  const SocialIconButton({
+    Key key,
+    @required this.icon,
+    @required this.url,
+  }) : super(key: key);
+
+  final IconData icon;
+  final String url;
+
+  @override
+  Widget build(BuildContext context) {
     var buttonOpacity = 1.0;
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -320,7 +387,191 @@ class Socials extends StatelessWidget {
 }
 
 class Body extends StatelessWidget {
+  final BodyWidget currentBodyWidget;
   Body({
+    Key key,
+    @required this.currentBodyWidget,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: AnimatedCrossFade(
+        crossFadeState: currentBodyWidget == BodyWidget.about
+            ? CrossFadeState.showFirst
+            : CrossFadeState.showSecond,
+        duration: Duration(milliseconds: 500),
+        firstChild: About(),
+        secondChild: Work(),
+      ),
+    );
+  }
+}
+
+class Work extends StatelessWidget {
+  const Work({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 100.0, top: 50.0),
+      child: Column(
+        children: <Widget>[
+          Text(
+            AppStrings.WORK,
+            style: TextStyle(
+                color: AppColors.PRIMARY,
+                fontSize: 48.0,
+                fontFamily: 'PlayfairDisplaySC-Regular'),
+          ),
+          SizedBox(
+            height: 100.0,
+          ),
+          WorkItem(
+            imagePath: 'assets/assets/images/world_holidays.png',
+            title: 'World Holidays',
+            description:
+                'World Holidays is a mobile app that displays the various holidays in a year across the countries of the world and reminds you of your favourite holidays.',
+            playStoreLink:
+                'https://play.google.com/store/apps/details?id=app.outfitbattle',
+            githubLink: 'https://github.com/herovickers/world_holidays',
+            index: 0, //TODO Reorganize code and remove this... index
+          ),
+          SizedBox(
+            height: 75.0,
+          ),
+          FractionallySizedBox(
+            widthFactor: 1.0,
+            child: Container(
+              height: 0.5,
+              color: AppColors.WHITE_DARK,
+              width: 500.0,
+            ),
+          ),
+          SizedBox(
+            height: 75.0,
+          ),
+          WorkItem(
+            imagePath: 'assets/assets/images/tag_battle.png',
+            title: 'Tag Battle',
+            description:
+                'Tag battle is an app that combines social media and gaming taking competition to a new level. It makes use of hashtags to organize for battles for users to vote and earn rewards!',
+            playStoreLink:
+                'https://play.google.com/store/apps/details?id=app.outfitbattle',
+            index: 1,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class WorkItem extends StatelessWidget {
+  final String imagePath;
+  final String title;
+  final String description;
+  final String playStoreLink;
+  final String appStoreLink;
+  final String githubLink;
+  final int index;
+
+  const WorkItem(
+      {Key key,
+      @required this.imagePath,
+      @required this.title,
+      @required this.description,
+      @required this.index,
+      this.appStoreLink = '',
+      this.playStoreLink = '',
+      this.githubLink = ''})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    AppScreenSize appScreenSize = AppFunctions.getScreenSize(context);
+
+    return Flex(
+      direction: appScreenSize == AppScreenSize.small
+          ? Axis.vertical
+          : Axis.horizontal,
+      textDirection: index.isEven ? TextDirection.ltr : TextDirection.rtl,
+      children: <Widget>[
+        appScreenSize == AppScreenSize.small
+            ? _buildAppImage()
+            : Expanded(
+                child: _buildAppImage(),
+              ),
+        SizedBox(
+          width: 50.0,
+          height: 30.0,
+        ),
+        appScreenSize == AppScreenSize.small
+            ? _buildAppDetails()
+            : Expanded(
+                child: _buildAppDetails(),
+              ),
+      ],
+    );
+  }
+
+  Widget _buildAppImage() => Image.network(imagePath);
+
+  Column _buildAppDetails() {
+    return Column(
+      children: <Widget>[
+        Text(
+          title,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+              color: AppColors.WHITE_DARK,
+              fontSize: 36,
+              fontFamily: 'PlayfairDisplay-Regular'),
+        ),
+        SizedBox(
+          height: 10.0,
+        ),
+        Text(
+          description,
+          style: TextStyle(
+              fontSize: 24.0,
+              color: AppColors.WHITE_DARK,
+              fontFamily: 'SourceSansPro-ExtraLight'),
+        ),
+        SizedBox(
+          height: 10.0,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            playStoreLink.isNotEmpty
+                ? SocialIconButton(
+                    icon: MaterialCommunityIcons.google_play,
+                    url: playStoreLink,
+                  )
+                : Container(),
+            githubLink.isNotEmpty
+                ? SocialIconButton(
+                    icon: MaterialCommunityIcons.github_circle,
+                    url: githubLink,
+                  )
+                : Container(),
+            appStoreLink.isNotEmpty
+                ? SocialIconButton(
+                    icon: Fontisto.app_store,
+                    url: appStoreLink,
+                  )
+                : Container()
+          ],
+        )
+      ],
+    );
+  }
+}
+
+class About extends StatelessWidget {
+  const About({
     Key key,
   }) : super(key: key);
 
@@ -334,7 +585,7 @@ class Body extends StatelessWidget {
           children: <Widget>[
             Expanded(
               flex: 3,
-              child: BodyDetails(),
+              child: AboutDetails(),
             ),
             SizedBox(
               width: appScreenSize == AppScreenSize.large
@@ -346,7 +597,7 @@ class Body extends StatelessWidget {
                     flex: 2,
                     child: Align(
                       alignment: Alignment.centerRight,
-                      child: Picture(),
+                      child: UserPicture(),
                     ),
                   )
                 : Container()
@@ -363,7 +614,7 @@ class Body extends StatelessWidget {
                   child: FractionallySizedBox(
                     widthFactor:
                         appScreenSize == AppScreenSize.small ? 1.0 : 2 / 5,
-                    child: Picture(),
+                    child: UserPicture(),
                   ),
                 ))
       ],
@@ -371,8 +622,8 @@ class Body extends StatelessWidget {
   }
 }
 
-class Picture extends StatelessWidget {
-  const Picture({
+class UserPicture extends StatelessWidget {
+  const UserPicture({
     Key key,
   }) : super(key: key);
 
@@ -392,8 +643,8 @@ class Picture extends StatelessWidget {
   }
 }
 
-class BodyDetails extends StatelessWidget {
-  const BodyDetails({
+class AboutDetails extends StatelessWidget {
+  const AboutDetails({
     Key key,
   }) : super(key: key);
 
@@ -448,13 +699,17 @@ class BodyDetails extends StatelessWidget {
 }
 
 class Header extends StatefulWidget {
-  final Future Function(Key key) onContactTap;
+  final Future Function() onContactTap;
   final Function(Key key) onMenuTap;
+  final Function() onWorkTap;
+  final Function() onAboutTap;
 
   const Header({
     Key key,
     @required this.onContactTap,
-    this.onMenuTap,
+    @required this.onMenuTap,
+    @required this.onWorkTap,
+    @required this.onAboutTap,
   }) : super(key: key);
 
   @override
@@ -465,7 +720,7 @@ class _HeaderState extends State<Header> with SingleTickerProviderStateMixin {
   AnimationController _animationController;
   bool _showLargeMenu = false;
   Key _selectedWidgetKey = WidgetKeys.DEFAULT_SELECTED_HEADER_KEY;
-
+  List<HeaderItem> headerItemList = [];
   @override
   void initState() {
     super.initState();
@@ -490,6 +745,37 @@ class _HeaderState extends State<Header> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     AppScreenSize appScreenSize = AppFunctions.getScreenSize(context);
+    headerItemList = [
+      HeaderItem(
+        AppStrings.WORK,
+        key: WidgetKeys.WORK_WIDGET_KEY,
+        selectedWidgetKey: _selectedWidgetKey,
+        onTap: (Key key) {
+          if (_showLargeMenu) _toggleMenu();
+          widget.onWorkTap();
+          return _changeSelectedHeader(key);
+        },
+      ),
+      HeaderItem(
+        AppStrings.ABOUT,
+        key: WidgetKeys.ABOUT_WIDGET_KEY,
+        selectedWidgetKey: _selectedWidgetKey,
+        onTap: (Key key) {
+          if (_showLargeMenu) _toggleMenu();
+          widget.onAboutTap();
+          return _changeSelectedHeader(key);
+        },
+      ),
+      HeaderItem(
+        AppStrings.CONTACT,
+        key: WidgetKeys.CONTACT_WIDGET_KEY,
+        onTap: (Key key) {
+          _toggleMenu();
+          return widget.onContactTap();
+        },
+        selectedWidgetKey: _selectedWidgetKey,
+      )
+    ];
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
@@ -505,27 +791,7 @@ class _HeaderState extends State<Header> with SingleTickerProviderStateMixin {
             appScreenSize == AppScreenSize.large
                 ? Row(
                     children: <Widget>[
-                      HeaderItem(
-                        AppStrings.WORK,
-                        key: WidgetKeys.WORK_WIDGET_KEY,
-                        selectedWidgetKey: _selectedWidgetKey,
-                        onTap: (Key key) => _changeSelectedHeader(key),
-                      ),
-                      HeaderItem(
-                        AppStrings.ABOUT,
-                        key: WidgetKeys.ABOUT_WIDGET_KEY,
-                        selectedWidgetKey: _selectedWidgetKey,
-                        onTap: (Key key) => _changeSelectedHeader(key),
-                      ),
-                      HeaderItem(
-                        AppStrings.CONTACT,
-                        key: WidgetKeys.CONTACT_WIDGET_KEY,
-                        onTap: (Key key) {
-                          _toggleMenu();
-                          return widget.onContactTap(key);
-                        },
-                        selectedWidgetKey: _selectedWidgetKey,
-                      )
+                      ...headerItemList,
                     ],
                   )
                 : IconButton(
@@ -558,27 +824,7 @@ class _HeaderState extends State<Header> with SingleTickerProviderStateMixin {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        HeaderItem(
-                          AppStrings.WORK,
-                          key: WidgetKeys.WORK_WIDGET_KEY,
-                          selectedWidgetKey: _selectedWidgetKey,
-                          onTap: (Key key) => _changeSelectedHeader(key),
-                        ),
-                        HeaderItem(
-                          AppStrings.ABOUT,
-                          key: WidgetKeys.ABOUT_WIDGET_KEY,
-                          selectedWidgetKey: _selectedWidgetKey,
-                          onTap: (Key key) => _changeSelectedHeader(key),
-                        ),
-                        HeaderItem(
-                          AppStrings.CONTACT,
-                          key: WidgetKeys.CONTACT_WIDGET_KEY,
-                          onTap: (Key key) {
-                            _toggleMenu();
-                            return widget.onContactTap(key);
-                          },
-                          selectedWidgetKey: _selectedWidgetKey,
-                        )
+                        ...headerItemList,
                       ],
                     ),
                   ),
@@ -617,7 +863,8 @@ class HeaderItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var textColor = Colors.white;
-    bool isSelected = selectedWidgetKey == key;
+    bool isSelected = selectedWidgetKey ==
+        key; //TODO Remove unnecessary passing of key to HeaderItem
 
     return Container(
       margin: EdgeInsets.symmetric(vertical: 8.0),
