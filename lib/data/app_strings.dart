@@ -14,7 +14,7 @@ class AppStrings {
   static const BOLDED_STRINGS = ['developer', 'Native', 'Android', 'Flutter'];
 
   static const GITHUB_URL = 'https://www.github.com/herovickers';
-  static const TWITTER_URL = 'https://twitter.com/herovickers';
+  static const TWITTER_URL = 'https://twitter.com/VEronmosele';
   static const STACKOVERFLOW_URL =
       'https://stackoverflow.com/users/11039164/victor-eronmosele';
 }
