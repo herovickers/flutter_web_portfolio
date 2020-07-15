@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:herovickers_github_io/data/app_strings.dart';
-import 'package:herovickers_github_io/screens/home_page.dart';
+import 'package:herovickers_github_io/pages/home_page.dart';
 
 void main() => runApp(MyApp());
 
@@ -11,15 +11,12 @@ class MyApp extends StatelessWidget {
       title: AppStrings.FULL_NAME,
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        textTheme: Theme.of(context).textTheme.copyWith(
-          body1: TextStyle(
-            color: Colors.white
-          )
-        )
+        textTheme: Theme.of(context)
+            .textTheme
+            .copyWith(bodyText2: TextStyle(color: Colors.white)),
       ),
-      home: MyHomePage(),
+      home: HomePage(),
       debugShowCheckedModeBanner: false,
     );
   }
 }
-

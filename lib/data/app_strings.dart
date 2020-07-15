@@ -1,5 +1,5 @@
 class AppStrings {
-  static const TITLE = 'Herovickers';
+  static const TITLE = 'Victor Eronmosele';
   static const FULL_NAME = 'Victor Eronmosele';
   static const WORK = 'Work';
   static const ABOUT = 'About';
@@ -13,8 +13,8 @@ class AppStrings {
 
   static const BOLDED_STRINGS = ['developer', 'Native', 'Android', 'Flutter'];
 
-  static const GITHUB_URL = 'https://www.github.com/herovickers';
-  static const TWITTER_URL = 'https://twitter.com/VEronmosele';
+  static const GITHUB_URL = 'https://www.github.com/victoreronmosele';
+  static const TWITTER_URL = 'https://twitter.com/Vic_Eronmosele';
   static const STACKOVERFLOW_URL =
       'https://stackoverflow.com/users/11039164/victor-eronmosele';
 }
