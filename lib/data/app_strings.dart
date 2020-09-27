@@ -9,7 +9,7 @@ class AppStrings {
   static const BODY_SUMMARY =
       'Mobile developer with experience in Native Android and Cross-Platform development with Flutter';
   static const BODY_MESSAGE =
-      'Victor Eronmosele is an experienced mobile app developer who has a passion for creating apps with great user experiences. He is skilled with working as a team and incorporating input into projects. He has a strong eye for detail and tenacity to never quit on something until it is absolutely perfect. He has built apps for start-ups and companies such as Wakanow.';
+      'Victor Eronmosele is an experienced mobile app developer who has a passion for creating apps with great user experiences. He is skilled with working as a team and incorporating input into projects. He has a strong eye for detail and a tenacity to never quit on something until it is absolutely perfect. He has built apps for start-ups and companies such as Wakanow.';
 
   static const BOLDED_STRINGS = ['developer', 'Native', 'Android', 'Flutter'];
 
